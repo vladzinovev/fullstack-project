@@ -7,6 +7,13 @@ app.get('/',(req,res)=>{
     res.send('Hello world!');
 });
 
+//если придет post запрос
+app.post('/auth/login',(req,res)=>{
+    res.json({
+        succes:true,
+    })
+})
+
 //запускаем веб сервер на порте 4444
 app.listen(4444, (err)=>{
     if (err){
