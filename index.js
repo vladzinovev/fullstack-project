@@ -2,6 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 const app = express();
 import mongoose from 'mongoose';
+import { registerValidation} from './validations/auth';
+
 
 //подключаем БД
 mongoose.connect('mongodb+srv://admin:adm123@cluster0.j7ewm4r.mongodb.net/?retryWrites=true&w=majority')
@@ -17,7 +19,7 @@ app.get('/',(req,res)=>{
 });
 
 //если придет post запрос
-app.post('/auth/login',(req,res)=>{
+app.post('/auth/login', (req,res)=>{
     //считываем полученные данные
     console.log(req.body);
 
@@ -31,6 +33,11 @@ app.post('/auth/login',(req,res)=>{
         //возвращаем зашифрованный token
         token
     })
+})
+
+//поле для регистрации
+app.post('/auth/register',registerValidation,(req,res)=>{
+    
 })
 
 //запускаем веб сервер на порте 4444
