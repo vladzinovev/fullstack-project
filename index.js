@@ -4,7 +4,8 @@ const app = express();
 import mongoose from 'mongoose';
 import { registerValidation} from './validations/auth.js';
 import { validationResult } from 'express-validator';
-
+import bcrypt from 'bcrypt';
+import UserModel from './models/User.js';
 
 //подключаем БД
 mongoose.connect('mongodb+srv://admin:adm123@cluster0.j7ewm4r.mongodb.net/?retryWrites=true&w=majority')
@@ -43,9 +44,29 @@ app.post('/auth/register', registerValidation ,(req,res)=>{
     if(!errors.isEmpty()){
         return res.status(400).json(errors.array());
     }
+
+    //шифруем пароль
+    const password = req.body.password;
+    //алгоритм шифрования нашего пароля
+    const salt = await bcrypt.genSalt(10);
+    //шифруем пароль
+    const hash = await bcrypt.hash(password, salt);
+
+    //подготавливаем документ для создани япользователя
+    const doc = new UserModel({
+        email: req.body.email,
+        fullName: req.body.fullName,
+        avatarUrl: req.body.avatarUrl,
+        passwordHash: hash,
+    });
+
+    //создаем самого пользователя (сохраняем документ в бд)
+    const user = await doc.save();
+
     //если нет ошибок
     res.json({
-        success:true
+        success:true,
+        user
     })
 })
 
