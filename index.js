@@ -2,7 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 const app = express();
 import mongoose from 'mongoose';
-import { registerValidation} from './validations/auth';
+import { registerValidation} from './validations/auth.js';
+import { validationResult } from 'express-validator';
 
 
 //подключаем БД
@@ -36,8 +37,16 @@ app.post('/auth/login', (req,res)=>{
 })
 
 //поле для регистрации
-app.post('/auth/register',registerValidation,(req,res)=>{
-    
+app.post('/auth/register', registerValidation ,(req,res)=>{
+    const errors = validationResult(req);
+    //если есть ошибка
+    if(!errors.isEmpty()){
+        return res.status(400).json(errors.array());
+    }
+    //если нет ошибок
+    res.json({
+        success:true
+    })
 })
 
 //запускаем веб сервер на порте 4444
