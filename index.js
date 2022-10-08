@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 const app = express();
 import mongoose from 'mongoose';
-import { registerValidation} from './validations/auth.js';
+import { registerValidation, loginValidation, postCreateValidation} from './validations.js';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import UserModel from './models/User.js';
@@ -40,10 +40,10 @@ app.post('/auth/login', (req,res)=>{
 })
 
 //поле для авторизации
-app.post('/auth/login', UserController.login)
+app.post('/auth/login',loginValidation, UserController.login)
 
 //поле для регистрации
-app.post('/auth/register', registerValidation ,UserController.register)
+app.post('/auth/register', registerValidation, UserController.register)
 
 //получаем информацию о нас
 app.get('/auth/me', checkAuth,UserController.getMe)
