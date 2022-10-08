@@ -6,6 +6,7 @@ import { registerValidation} from './validations/auth.js';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import UserModel from './models/User.js';
+import { checkAuth } from './utils/index.js';
 
 //подключаем БД
 mongoose.connect('mongodb+srv://admin:adm123@cluster0.j7ewm4r.mongodb.net/?retryWrites=true&w=majority')
@@ -38,12 +39,12 @@ app.post('/auth/login', (req,res)=>{
 })
 
 //поле для авторизации
-app.post('/auth/login', (req,res)=>{
+app.post('/auth/login', async (req,res)=>{
     try {
         const user = await UserModel.fundOne({email: req.body.email});
 
         if(!user){
-            return req.status(404).json({
+            return res.status(404).json({
                 message: "Не верный логин или пароль",
             })
         }
@@ -132,6 +133,30 @@ app.post('/auth/register', registerValidation ,async (req,res)=>{
         console.log(err);
         res.status(500).json({
             message: 'Не удалось зарегистрироваться',
+        })
+    }
+})
+
+//получаем информацию о нас
+app.get('/auth/me', checkAuth, async (req,res)=>{
+    try{
+        const user = await UserModel.findById(req.userId);
+        
+        //если пользователь не найден
+        if(!user){
+            return res.status(404).json({
+                message: 'Пользователь не найден'
+            });
+        }
+
+        const {passwordHash, ...userData}=user._data;
+        //если нет ошибок
+        res.json({userData})
+
+    } catch (err){
+        console.log(err);
+        res.status(500).json({
+            message: 'Нет доступа',
         })
     }
 })
