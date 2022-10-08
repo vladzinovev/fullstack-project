@@ -37,37 +37,103 @@ app.post('/auth/login', (req,res)=>{
     })
 })
 
-//поле для регистрации
-app.post('/auth/register', registerValidation ,(req,res)=>{
-    const errors = validationResult(req);
-    //если есть ошибка
-    if(!errors.isEmpty()){
-        return res.status(400).json(errors.array());
+//поле для авторизации
+app.post('/auth/login', (req,res)=>{
+    try {
+        const user = await UserModel.fundOne({email: req.body.email});
+
+        if(!user){
+            return req.status(404).json({
+                message: "Не верный логин или пароль",
+            })
+        }
+
+        //сверяем пароль
+        const isValidPass= await bcrypt.compare();
+
+        //шифруем нашего пользователя в бд
+        const token = jwt.sign(
+            {
+                _id:user._id,
+            },
+            //ключ с помощю которогошифруем информацию
+            'secret123',
+            {
+                //срок жизни token
+                expiresIn: '30d',
+            },
+
+        )
+
+        const {passwordHash, ...userData}=user._data;
+        //если нет ошибок
+        res.json({
+            success:true,
+            ...userData,
+            token
+        })
+    }catch (err){
+        console.log(err);
+        res.status(500).json({
+            message: 'Не удалось авторизоваться',
+        })
     }
+})
 
-    //шифруем пароль
-    const password = req.body.password;
-    //алгоритм шифрования нашего пароля
-    const salt = await bcrypt.genSalt(10);
-    //шифруем пароль
-    const hash = await bcrypt.hash(password, salt);
+//поле для регистрации
+app.post('/auth/register', registerValidation ,async (req,res)=>{
+    try{
+        const errors = validationResult(req);
+        //если есть ошибка
+        if(!errors.isEmpty()){
+            return res.status(400).json(errors.array());
+        }
+    
+        //шифруем пароль
+        const password = req.body.password;
+        //алгоритм шифрования нашего пароля
+        const salt = await bcrypt.genSalt(10);
+        //шифруем пароль
+        const hash = await bcrypt.hash(password, salt);
+    
+        //подготавливаем документ для создани япользователя
+        const doc = new UserModel({
+            email: req.body.email,
+            fullName: req.body.fullName,
+            avatarUrl: req.body.avatarUrl,
+            passwordHash: hash,
+        });
+    
+        //создаем самого пользователя (сохраняем документ в бд)
+        const user = await doc.save();
 
-    //подготавливаем документ для создани япользователя
-    const doc = new UserModel({
-        email: req.body.email,
-        fullName: req.body.fullName,
-        avatarUrl: req.body.avatarUrl,
-        passwordHash: hash,
-    });
+        //шифруем нашего пользователя в бд
+        const token = jwt.sign(
+            {
+                _id:user._id,
+            },
+            //ключ с помощю которогошифруем информацию
+            'secret123',
+            {
+                //срок жизни token
+                expiresIn: '30d',
+            },
 
-    //создаем самого пользователя (сохраняем документ в бд)
-    const user = await doc.save();
-
-    //если нет ошибок
-    res.json({
-        success:true,
-        user
-    })
+        )
+    
+        const {passwordHash, ...userData}=user._data;
+        //если нет ошибок
+        res.json({
+            success:true,
+            ...userData,
+            token
+        })
+    }catch (err){
+        console.log(err);
+        res.status(500).json({
+            message: 'Не удалось зарегистрироваться',
+        })
+    }
 })
 
 //запускаем веб сервер на порте 4444
