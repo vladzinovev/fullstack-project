@@ -15,8 +15,29 @@ mongoose.connect('mongodb+srv://admin:adm123@cluster0.j7ewm4r.mongodb.net/?retry
     .then(()=>console.log('connect to DB OK'))
     .catch((err)=>console.log('DB error', err))
 
+//создаем storage где будем хранить наши картинки
+const storage = multer.diskStorage({
+    destination: (_, __, cb) => {
+        
+        cb(null, 'uploads');
+    },
+    filename: (_, file, cb) => {
+        cb(null, file.originalname);
+    },
+});
+const upload = multer({ storage });
+
+//запрос на загрузку картинки
+app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+    res.json({
+      url: `/uploads/${req.file.originalname}`,
+    });
+  });
+
 //научили читать json запросы
 app.use(express.json())
+//прлверяет если нужный файл в данной папке
+app.use('/uploads', express.static('uploads'));
 
 //если приходит get запрос отправляем привет мир (что передаем клиенту)
 app.get('/',(req,res)=>{
@@ -65,7 +86,7 @@ app.post('/posts', checkAuth, postCreateValidation,  PostController.create);
 app.delete('/posts/:id',checkAuth, PostController.remove);
 
 //запрос на обновление статьи
-//app.patch();
+app.patch(checkAuth, postCreateValidation, PostController.update);
 
 //запускаем веб сервер на порте 4444
 app.listen(4444, (err)=>{
