@@ -50,19 +50,19 @@ app.post('/auth/register', registerValidation, UserController.register)
 app.get('/auth/me', checkAuth,UserController.getMe)
 
 //get запрос на получение всех статей
-//app.get('/posts', PostController.getAll);
+app.get('/posts', PostController.getAll);
 
 //
 //app.get('/posts/tags', PostController.getLastTags);
 
 //get запрос на получение оной статьи
-//app.get('/posts/:id', PostController.getOne);
+app.get('/posts/:id', PostController.getOne);
 
 //post запрос на создание статьи
 app.post('/posts', checkAuth, postCreateValidation,  PostController.create);
 
 //запрос на удаление статьи
-//app.delete('/posts/:id', PostController.remove);
+app.delete('/posts/:id',checkAuth, PostController.remove);
 
 //запрос на обновление статьи
 //app.patch();
