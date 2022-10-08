@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt';
 import UserModel from './models/User.js';
 import { checkAuth } from './utils/index.js';
 import * as UserController from './controllers/UserController.js';
+import * as PostController from './controllers/PostController.js';
 
 //подключаем БД
 mongoose.connect('mongodb+srv://admin:adm123@cluster0.j7ewm4r.mongodb.net/?retryWrites=true&w=majority')
@@ -47,6 +48,24 @@ app.post('/auth/register', registerValidation, UserController.register)
 
 //получаем информацию о нас
 app.get('/auth/me', checkAuth,UserController.getMe)
+
+//get запрос на получение всех статей
+//app.get('/posts', PostController.getAll);
+
+//
+//app.get('/posts/tags', PostController.getLastTags);
+
+//get запрос на получение оной статьи
+//app.get('/posts/:id', PostController.getOne);
+
+//post запрос на создание статьи
+app.post('/posts', checkAuth, postCreateValidation,  PostController.create);
+
+//запрос на удаление статьи
+//app.delete('/posts/:id', PostController.remove);
+
+//запрос на обновление статьи
+//app.patch();
 
 //запускаем веб сервер на порте 4444
 app.listen(4444, (err)=>{
