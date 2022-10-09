@@ -5,11 +5,6 @@ import UserModel from '../models/User.js';
 
 export const register = async (req,res)=>{
   try{
-      const errors = validationResult(req);
-      //если есть ошибка
-      if(!errors.isEmpty()){
-          return res.status(400).json(errors.array());
-      }
   
       //шифруем пароль
       const password = req.body.password;
