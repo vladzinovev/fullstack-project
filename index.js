@@ -6,9 +6,10 @@ import { registerValidation, loginValidation, postCreateValidation} from './vali
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import UserModel from './models/User.js';
-import { checkAuth } from './utils/index.js';
-import * as UserController from './controllers/UserController.js';
-import * as PostController from './controllers/PostController.js';
+
+import { handleValidationErrors, checkAuth } from './utils/index.js';
+
+import { UserController, PostController } from './controllers/index.js';
 
 //подключаем БД
 mongoose.connect('mongodb+srv://admin:adm123@cluster0.j7ewm4r.mongodb.net/?retryWrites=true&w=majority')
@@ -62,10 +63,10 @@ app.post('/auth/login', (req,res)=>{
 })
 
 //поле для авторизации
-app.post('/auth/login',loginValidation, UserController.login)
+app.post('/auth/login',loginValidationhandleValidationErrors, UserController.login)
 
 //поле для регистрации
-app.post('/auth/register', registerValidation, UserController.register)
+app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register)
 
 //получаем информацию о нас
 app.get('/auth/me', checkAuth,UserController.getMe)
@@ -80,13 +81,13 @@ app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
 
 //post запрос на создание статьи
-app.post('/posts', checkAuth, postCreateValidation,  PostController.create);
+app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create);
 
 //запрос на удаление статьи
 app.delete('/posts/:id',checkAuth, PostController.remove);
 
 //запрос на обновление статьи
-app.patch(checkAuth, postCreateValidation, PostController.update);
+app.patch(checkAuth, postCreateValidation,handleValidationErrors, PostController.update);
 
 //запускаем веб сервер на порте 4444
 app.listen(4444, (err)=>{

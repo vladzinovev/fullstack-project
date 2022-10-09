@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 //пишем все свойства которые есть у пользователя
 const UserSchema = new mongoose.Schema({
     fullName:{
