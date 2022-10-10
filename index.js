@@ -10,6 +10,7 @@ import UserModel from './models/User.js';
 import { handleValidationErrors, checkAuth } from './utils/index.js';
 
 import { UserController, PostController } from './controllers/index.js';
+import cors from 'cors';
 
 //подключаем БД
 mongoose.connect('mongodb+srv://admin:adm123@cluster0.j7ewm4r.mongodb.net/?retryWrites=true&w=majority')
@@ -37,6 +38,7 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
 
 //научили читать json запросы
 app.use(express.json())
+app.use(cors());
 //прлверяет если нужный файл в данной папке
 app.use('/uploads', express.static('uploads'));
 
