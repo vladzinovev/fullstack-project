@@ -73,11 +73,13 @@ app.post('/auth/register', registerValidation, handleValidationErrors, UserContr
 //получаем информацию о нас
 app.get('/auth/me', checkAuth,UserController.getMe)
 
+app.get('/tags',PostController.getLastTags)
+
 //get запрос на получение всех статей
 app.get('/posts', PostController.getAll);
 
-//
-//app.get('/posts/tags', PostController.getLastTags);
+//get запрос тегов
+app.get('/posts/tags', PostController.getLastTags);
 
 //get запрос на получение оной статьи
 app.get('/posts/:id', PostController.getOne);
