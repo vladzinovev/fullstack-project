@@ -28,8 +28,16 @@ export const Login = () => {
   });
 
 
-  const onSubmit=(values)=>{
-    dispatch(fetchAuth(values))
+  const onSubmit=async (values)=>{
+    const data = await dispatch(fetchAuth(values));
+    if (!data.payload){
+      return alert('Не удалось авторизоваться!')
+    }
+    //сохраняем наши данные в локалсторадж, чтобы не вылетал аккаунт
+    if ('token' in data.payload){
+      window.localStorage.setItems('token',data.payload.token);
+    } 
+    
   };
 
   //если мы авторизовнаы, то переходим на главную
@@ -63,7 +71,7 @@ export const Login = () => {
           {...register('password',{required:'ВВедите пароль'})}
           fullWidth 
         />
-        <Button type='submit' size="large" variant="contained" fullWidth>
+        <Button disabled={!isValid} type='submit' size="large" variant="contained" fullWidth>
           Войти
         </Button>
       </form>
