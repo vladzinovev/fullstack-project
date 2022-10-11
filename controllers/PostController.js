@@ -16,7 +16,6 @@ export const getLastTags = async (req, res) => {
   }
 };
 
-
 export const getAll = async (req, res) => {
   try {
     //возвращаем все статьи и весь обьект user
